@@ -12,7 +12,6 @@ def pause():
         if keyboard.read_key() == 'space':
             break
         
-           
         
 #-----------------------------------------------------------------------------
 #information for website, driver, and xlsx
@@ -33,7 +32,6 @@ drag_image_xpath = "/html/body/div[3]/div[2]/div[1]/div/div[1]/div/div/div/div[2
 
 #-----------------------------------------------------------------------------
 #Functions for navigation
-
 def Login(input, id):
     field = driver.find_element(By.ID, id)
     for x in input :
@@ -45,15 +43,18 @@ def Click_ID(id) :
     driver.find_element(By.ID, id).click()
     return driver
 
+#Clicking function that clicks on specificied to Class
 def Click_Class(class_id) :
     driver.find_element(By.CLASS_NAME, class_id).click()
     return driver
     
-
+#Function to upload photos
 def Upload_Photo_xPath(xPath) :
     driver.find_element(By.XPATH, xPath).send_keys(image_location)
     return driver
 
+
+#Function to access xlsx sheet
 def AccessSheet(sheet) :
     for col in sheet.iter_cols(min_row=2, max_col=1, max_row=10):
         for cell in col:
