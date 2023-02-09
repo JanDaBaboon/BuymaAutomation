@@ -3,6 +3,8 @@ from selenium.webdriver.common.by import By
 import time
 import keyboard
 from openpyxl import workbook, load_workbook
+import os 
+from os import listdir
 
 
 #-----------------------------------------------------------------------------
@@ -20,7 +22,7 @@ url2 = "https://www.buyma.com/my/sell/new?tab=b"
 driver = webdriver.Chrome(executable_path="./chromedriver")
 wb = load_workbook(r"C:\Users\junya\Desktop\BuymaAutomation\xlsx\inventory_data.xlsx")
 ws = wb["inventory_data_sheet"]
-image_location = r"C:\Users\junya\Desktop\BuymaAutomation\images\Malta Gown\img(101).jpg"
+image_location = r"C:\Users\junya\Desktop\BuymaAutomation\images"
 
 #selection elements in order of uses for different input elements
 login_id = "txtLoginId"
@@ -28,7 +30,10 @@ password_id = "txtLoginPass"
 submit_element_id = "login_do"
 skip_button_class = "driver-close-btn"
 drag_image_xpath = "/html/body/div[3]/div[2]/div[1]/div/div[1]/div/div/div/div[2]/form/div[1]/div/div/div[2]/div/div/div[1]/div/div/div/input"
+drag_image_xpath2 = "/html/body/div[3]/div[2]/div[1]/div/div[1]/div/div/div/div[2]/form/div[1]/div/div/div[2]/div/div/div[1]/div/div/div[2]/input"
 
+#variable used for program control
+item_list = []
 
 #-----------------------------------------------------------------------------
 #Functions for navigation
@@ -50,17 +55,59 @@ def Click_Class(class_id) :
     
 #Function to upload photos
 def Upload_Photo_xPath(xPath) :
-    driver.find_element(By.XPATH, xPath).send_keys(image_location)
-    return driver
+    current_item_image_location = os.path.join(image_location, item_list[item_pointer])
+    #print(current_item_image_location)
+    photo_counter = 1
+    for images in os.listdir(current_item_image_location):
+        i = os.path.join(current_item_image_location, images)
+        if photo_counter == 1:
+            driver.find_element(By.XPATH, xPath).send_keys(i)
+            photo_counter =+ 1
+            time.sleep(2)
+        else :
+            xPath2 = ("/html/body/div[3]/div[2]/div[1]/div/div[1]/div/div/div/div[2]/form/div[1]/div/div/div[2]/div/div/div[1]/div/div/div[%s]/input" % photo_counter)
+            driver.find_element(By.XPATH, xPath2).send_keys(i)
+            time.sleep(1)
+            return driver
+          
+            
+    
+        
 
 
-#Function to access xlsx sheet
+#Function to access xlsx sheet. Returns a list with all the items of first row.
 def AccessSheet(sheet) :
-    for col in sheet.iter_cols(min_row=2, max_col=1, max_row=10):
+    for col in sheet.iter_cols(min_row=2, min_col=2, max_col=2, max_row=10):
         for cell in col:
             if cell.value != None :
-                print (cell.value)
+                item_list.append(cell.value)
+                print(item_list)           
+   
+         
             
+# -----------------------------------------------------------------------------
+#Tracking which item we are on
+item_pointer = 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # -----------------------------------------------------------------------------
 # Order of operations
@@ -81,8 +128,6 @@ Click_Class(skip_button_class)
 AccessSheet(ws)
 
 Upload_Photo_xPath(drag_image_xpath)
-
-
 
 
 pause()
